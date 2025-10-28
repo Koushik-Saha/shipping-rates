@@ -6,7 +6,7 @@ interface RateCardProps {
     rate: Rate;
     carrierName: string;
     discountEnabled?: boolean;
-    discountValue?: string | number;
+    discountValue?: string;
     discountType?: 'percentage' | 'fixed';
 }
 
@@ -17,7 +17,7 @@ export function RateCard({ rate, carrierName, discountEnabled = false, discountV
     // Calculate discounted rate
     let currentRate = baseRate;
     let discountApplied = 0;
-    const discountNum = typeof discountValue === 'string' ? parseFloat(discountValue) : discountValue;
+    const discountNum = discountValue ? parseFloat(discountValue) : 0;
 
     if (discountEnabled && !isNaN(discountNum) && discountNum > 0) {
         if (discountType === 'percentage') {
@@ -92,10 +92,10 @@ export function RateCard({ rate, carrierName, discountEnabled = false, discountV
             )}
 
             {/* Discount Info */}
-            {discountEnabled && discountValue > 0 && (
+            {discountEnabled && discountNum > 0 && (
                 <div className="bg-blue-100 border-2 border-blue-300 p-3 rounded mb-4">
                     <p className="text-blue-700 font-bold text-sm">
-                        Additional Discount: {discountType === 'percentage' ? `${discountValue}%` : `${discountValue.toFixed(2)}`}
+                        Additional Discount: {discountType === 'percentage' ? `${discountValue}%` : `${discountNum.toFixed(2)}`}
                     </p>
                     <p className="text-blue-600 text-xs">
                         Original: ${baseRate.toFixed(2)} → Discounted: ${currentRate.toFixed(2)}

@@ -1,6 +1,6 @@
 import EasyPost from '@easypost/api';
 
-const client = new EasyPost(process.env.EASYPOST_API_KEY);
+const client = new EasyPost(process.env.EASYPOST_API_KEY || '');
 
 export async function getRates(shipmentData: any) {
   try {

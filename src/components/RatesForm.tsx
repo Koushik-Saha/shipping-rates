@@ -211,8 +211,15 @@ export function RatesForm({
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
                 from_address: selectedFromAddress,
-                to_address: { ...payload.to_address, id: '' },
-                parcel: { id: '', object: 'parcel', ...payload.parcel },
+                to_address: { zip: data.toZip, country: data.toCountry, id: '' },
+                parcel: { 
+                    id: '', 
+                    object: 'parcel', 
+                    length: parseInt(data.length),
+                    width: parseInt(data.width),
+                    height: parseInt(data.height),
+                    weight: parseFloat(data.pounds) + parseFloat(data.ounces) / 16,
+                },
                 rates: fakeRates,
             });
         } finally {
@@ -402,10 +409,11 @@ export function RatesForm({
                                             <Controller
                                                 name="useAsReturn"
                                                 control={addressControl}
-                                                render={({ field }) => (
+                                                render={({ field: { value, ...field } }) => (
                                                     <input
                                                         {...field}
                                                         type="checkbox"
+                                                        checked={value}
                                                         className="w-5 h-5 rounded border-2 border-gray-300 cursor-pointer"
                                                     />
                                                 )}
@@ -419,10 +427,11 @@ export function RatesForm({
                                             <Controller
                                                 name="saveAddress"
                                                 control={addressControl}
-                                                render={({ field }) => (
+                                                render={({ field: { value, ...field } }) => (
                                                     <input
                                                         {...field}
                                                         type="checkbox"
+                                                        checked={value}
                                                         className="w-5 h-5 rounded border-2 border-gray-300 cursor-pointer"
                                                     />
                                                 )}

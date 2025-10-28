@@ -7,7 +7,7 @@ interface RatesListProps {
     shipment: Shipment | null;
     loading: boolean;
     discountEnabled?: boolean;
-    discountValue?: number;
+    discountValue?: string;
     discountType?: 'percentage' | 'fixed';
 }
 
@@ -15,7 +15,7 @@ export function RatesList({
                               shipment,
                               loading,
                               discountEnabled = false,
-                              discountValue = 0,
+                              discountValue = '',
                               discountType = 'percentage'
                           }: RatesListProps) {
     if (loading) {

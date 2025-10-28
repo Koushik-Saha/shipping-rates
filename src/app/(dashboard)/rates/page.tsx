@@ -10,7 +10,7 @@ export default function RatesPage() {
     const [shipment, setShipment] = useState<Shipment | null>(null);
     const [loading, setLoading] = useState(false);
     const [discountEnabled, setDiscountEnabled] = useState(false);
-    const [discountValue, setDiscountValue] = useState('');
+    const [discountValue, setDiscountValue] = useState<string>('');
     const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
 
     const handleRatesReceived = (data: Shipment) => {
