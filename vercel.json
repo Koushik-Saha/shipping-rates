@@ -1,0 +1,13 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "prisma generate && npm run build",
+  "env": {
+    "NEXTAUTH_URL": "https://pirate-shipping.vercel.app",
+    "NEXTAUTH_SECRET": "@nextauth_secret"
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}
