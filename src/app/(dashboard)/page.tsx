@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import { Sidebar } from '@/components/Sidebar';
-import { Play, Package, Upload, HelpCircle } from 'lucide-react';
 
-export default function ShipPage() {
+export default function HomePage() {
     return (
         <div className="flex bg-gray-50 min-h-screen">
             <Sidebar />
@@ -37,12 +36,10 @@ export default function ShipPage() {
                         </div>
 
                         {/* Video Placeholder */}
-                        <div className="bg-gray-300 rounded-lg h-64 flex items-center justify-center relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
-                                <div className="text-center">
-                                    <Play className="w-16 h-16 text-white mx-auto mb-2" fill="white" />
-                                    <p className="text-white font-semibold">Welcome Video</p>
-                                </div>
+                        <div className="bg-gray-300 rounded-lg h-64 flex items-center justify-center">
+                            <div className="text-center">
+                                <div className="text-6xl mb-2">▶️</div>
+                                <p className="text-white font-semibold">Welcome Video</p>
                             </div>
                         </div>
                     </div>
@@ -73,8 +70,7 @@ export default function ShipPage() {
                                     <h3 className="text-xl font-bold mb-3">Step 3</h3>
                                     <h4 className="font-semibold mb-2">Drop off or schedule pick-up</h4>
                                     <p className="text-gray-300 text-sm">
-                                        Schedule for USPS® or UPS® to pick up your package or hand it to them at a location nearby.{' '}
-                                        <span className="text-blue-400 cursor-pointer hover:underline">Learn more</span>
+                                        Schedule for USPS® or UPS® to pick up your package or hand it to them at a location nearby.
                                     </p>
                                 </div>
                             </div>
@@ -87,7 +83,7 @@ export default function ShipPage() {
                         <div className="grid grid-cols-3 gap-6">
                             {/* Import Orders */}
                             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                                <Package className="w-12 h-12 text-blue-500 mb-4" />
+                                <div className="text-4xl mb-4">📦</div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Import your orders</h3>
                                 <p className="text-gray-700 text-sm mb-4">
                                     Connect your store to import orders. When you buy labels they will automatically be marked as shipped and receive tracking information.
@@ -99,7 +95,7 @@ export default function ShipPage() {
 
                             {/* Upload Spreadsheet */}
                             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                                <Upload className="w-12 h-12 text-green-500 mb-4" />
+                                <div className="text-4xl mb-4">⬆️</div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Upload a spreadsheet</h3>
                                 <p className="text-gray-700 text-sm mb-4">
                                     Buy shipping labels with any type of address spreadsheet no matter whether it's CSV, Excel or Open Office.
@@ -111,7 +107,7 @@ export default function ShipPage() {
 
                             {/* Get Support */}
                             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                                <HelpCircle className="w-12 h-12 text-purple-500 mb-4" />
+                                <div className="text-4xl mb-4">❓</div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Need some help?</h3>
                                 <p className="text-gray-700 text-sm mb-4">
                                     Visit our support center to search for frequently asked questions, or to contact our crew for anything you need.
@@ -134,7 +130,7 @@ export default function ShipPage() {
                                     key={i}
                                     className="w-16 h-16 bg-gray-400 hover:bg-gray-500 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
                                 >
-                                    <Play className="w-8 h-8 text-white" fill="white" />
+                                    ▶️
                                 </button>
                             ))}
                         </div>
