@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
 import { Box, BarChart3, Cog, HelpCircle, LogOut, Users } from 'lucide-react';
 
 export function Sidebar() {
     const pathname = usePathname();
+    const { data: session } = useSession();
 
     const links = [
         { href: '/ship', icon: Box, label: 'Ship' },
@@ -49,7 +51,19 @@ export function Sidebar() {
 
             {/* Footer */}
             <div className="border-t border-gray-700 pt-4 space-y-2">
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-900">
+                {/* User Info */}
+                {session?.user && (
+                    <div className="px-4 py-2 text-gray-400 text-sm">
+                        <div className="font-semibold text-white">{session.user.name || 'Captain'}</div>
+                        <div className="truncate">{session.user.email}</div>
+                    </div>
+                )}
+                
+                {/* Logout Button */}
+                <button 
+                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-900 transition-colors"
+                >
                     <LogOut size={20} />
                     <span>Logout</span>
                 </button>
