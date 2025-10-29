@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Box, BarChart3, Cog, HelpCircle, LogOut } from 'lucide-react';
+import { Box, BarChart3, Cog, HelpCircle, LogOut, Users } from 'lucide-react';
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -11,6 +11,7 @@ export function Sidebar() {
         { href: '/ship', icon: Box, label: 'Ship' },
         { href: '/rates', icon: BarChart3, label: 'Rates' },
         { href: '/reports', icon: BarChart3, label: 'Reports' },
+        { href: '/users', icon: Users, label: 'Users' },
         { href: '/settings', icon: Cog, label: 'Settings' },
         { href: '/support', icon: HelpCircle, label: 'Support' },
     ];
