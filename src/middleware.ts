@@ -19,11 +19,11 @@ export default withAuth(
 
 export const config = {
     matcher: [
-        '/dashboard/:path*',
-        '/rates/:path*',
-        '/ship/:path*',
-        '/settings/:path*',
-        '/reports/:path*',
-        '/users/:path*'
+        // '/dashboard/:path*',
+        // '/rates/:path*',
+        // '/ship/:path*',
+        // '/settings/:path*',
+        // '/reports/:path*',
+        // '/users/:path*'
     ],
 };
