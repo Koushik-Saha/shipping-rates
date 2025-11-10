@@ -174,8 +174,6 @@ export function RatesForm({
             const result = await response.json();
 
 
-            console.log("result", result)
-
 
             if (!response.ok) {
                 // Display more specific error messages
