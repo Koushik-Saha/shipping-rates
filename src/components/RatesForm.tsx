@@ -173,6 +173,38 @@ export function RatesForm({
 
             const result = await response.json();
 
+
+            console.log("result", result)
+
+
+            if (!response.ok) {
+                // Display more specific error messages
+                setError(result.error || 'Failed to fetch rates');
+                if (result.details && process.env.NODE_ENV === 'development') {
+                    console.error('API Error Details:', result.details);
+                }
+                return;
+            }
+
+            if (result.success && result.rates && result.rates.length > 0) {
+                onRatesReceived({
+                    id: result.shipment_id,
+                    object: 'shipment',
+                    status: 'created',
+                    mode: process.env.NODE_ENV === 'production' ? 'production' : 'test',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                    from_address: selectedFromAddress,
+                    to_address: { ...payload.to_address, id: '' },
+                    parcel: { id: '', object: 'parcel', ...payload.parcel },
+                    rates: result.rates,
+                });
+            } else if (result.success && (!result.rates || result.rates.length === 0)) {
+                setError('No rates available for this shipment. Please check your addresses.');
+            } else {
+                setError(result.error || 'Failed to get rates');
+            }
+
             if (result.success && result.rates && result.rates.length > 0) {
                 onRatesReceived({
                     id: result.shipment_id,

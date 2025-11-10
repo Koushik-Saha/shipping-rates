@@ -23,23 +23,11 @@ export function RatesList({
         return (
             <div className="mt-8">
                 <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-gray-200">
-                    <LoadingSpinner 
-                        text="Finding the best shipping rates for you..." 
+                    <LoadingSpinner
+                        text="Finding the best shipping rates for you..."
                         size={20}
                         color="#3b82f6"
                     />
-                </div>
-                
-                {/* Optional: Keep skeleton cards below the spinner for better UX */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 opacity-50">
-                    {[...Array(4)].map((_, i) => (
-                        <div key={i} className="border border-gray-200 rounded-lg p-6 bg-white animate-pulse">
-                            <div className="h-8 bg-gray-200 rounded mb-4 w-3/4"></div>
-                            <div className="h-4 bg-gray-200 rounded mb-4 w-1/2"></div>
-                            <div className="h-6 bg-gray-200 rounded mb-4"></div>
-                            <div className="h-10 bg-gray-200 rounded"></div>
-                        </div>
-                    ))}
                 </div>
             </div>
         );
@@ -49,29 +37,62 @@ export function RatesList({
         return null;
     }
 
-    const ratesByCarrier = shipment.rates.reduce((acc, rate) => {
-        const carrier = rate.carrier;
-        if (!acc[carrier]) acc[carrier] = [];
-        acc[carrier].push(rate);
-        return acc;
-    }, {} as Record<string, Rate[]>);
+    // Find the cheapest rate
+    const cheapestRate = shipment.rates.reduce((min, current) => {
+        const currentPrice = parseFloat(current.rate);
+        const minPrice = parseFloat(min.rate);
+        return currentPrice < minPrice ? current : min;
+    }, shipment.rates[0]);
+
+    // Sort rates by price
+    const sortedRates = [...shipment.rates].sort((a, b) => {
+        return parseFloat(a.rate) - parseFloat(b.rate);
+    });
+
+    // Group by carrier while maintaining sort
+    const ratesByCarrier: { carrier: string; rate: Rate }[] = sortedRates.map(rate => ({
+        carrier: rate.carrier,
+        rate: rate
+    }));
 
     return (
         <div className="mt-8">
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Available Rates</h2>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h2 className="text-3xl font-bold text-gray-900">Shipping Rates</h2>
+                    <p className="text-gray-600 mt-1">Compare rates from multiple carriers</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Showing {shipment.rates.length} rates</span>
+                </div>
+            </div>
+
+            {/* Rate Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.entries(ratesByCarrier).map(([carrier, rates]) =>
-                    rates.map((rate) => (
-                        <RateCard
-                            key={rate.id}
-                            rate={rate}
-                            carrierName={carrier}
-                            discountEnabled={discountEnabled}
-                            discountValue={discountValue}
-                            discountType={discountType}
-                        />
-                    ))
-                )}
+                {ratesByCarrier.map(({ carrier, rate }) => (
+                    <RateCard
+                        key={rate.id}
+                        rate={rate}
+                        carrierName={carrier}
+                        discountEnabled={discountEnabled}
+                        discountValue={discountValue}
+                        discountType={discountType}
+                        isCheapest={rate.id === cheapestRate.id}
+                        shipmentDate={new Date()}
+                    />
+                ))}
+            </div>
+
+            {/* Additional Information */}
+            <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="font-bold text-gray-900 mb-2">💡 Shipping Tips</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                    <li>• All rates include free tracking and basic carrier liability</li>
+                    <li>• Delivery dates are estimates based on carrier service levels</li>
+                    <li>• Consider adding insurance for high-value items</li>
+                    <li>• Package dimensions and weight affect final pricing</li>
+                </ul>
             </div>
         </div>
     );

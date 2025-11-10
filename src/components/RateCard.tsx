@@ -1,6 +1,7 @@
 'use client';
 
 import { Rate } from '@/types';
+import { Truck, Clock, Shield, Tag } from 'lucide-react';
 
 interface RateCardProps {
     rate: Rate;
@@ -8,9 +9,19 @@ interface RateCardProps {
     discountEnabled?: boolean;
     discountValue?: string;
     discountType?: 'percentage' | 'fixed';
+    isCheapest?: boolean;
+    shipmentDate?: Date;
 }
 
-export function RateCard({ rate, carrierName, discountEnabled = false, discountValue = '', discountType = 'percentage' }: RateCardProps) {
+export function RateCard({
+                             rate,
+                             carrierName,
+                             discountEnabled = false,
+                             discountValue = '',
+                             discountType = 'percentage',
+                             isCheapest = false,
+                             shipmentDate = new Date()
+                         }: RateCardProps) {
     const retailRate = parseFloat(rate.retail_rate || rate.rate);
     const baseRate = parseFloat(rate.rate);
 
@@ -27,94 +38,177 @@ export function RateCard({ rate, carrierName, discountEnabled = false, discountV
             discountApplied = discountNum;
             currentRate = baseRate - discountApplied;
         }
-        // Ensure rate doesn't go below 0
         currentRate = Math.max(currentRate, 0);
     }
 
     const savings = retailRate - currentRate;
-    const savingsPercent = retailRate > 0 ? ((savings / retailRate) * 100).toFixed(0) : '0';
+    const savingsPercent = retailRate > 0 ? Math.round((savings / retailRate) * 100) : 0;
 
-    // Carrier colors
-    const getCarrierColor = (carrier: string) => {
-        switch (carrier.toUpperCase()) {
+    // Calculate estimated delivery date
+    const getDeliveryDate = () => {
+        if (!rate.delivery_days) return null;
+        const deliveryDate = new Date(shipmentDate);
+        let daysToAdd = rate.delivery_days;
+
+        // Add business days (skip weekends)
+        while (daysToAdd > 0) {
+            deliveryDate.setDate(deliveryDate.getDate() + 1);
+            if (deliveryDate.getDay() !== 0 && deliveryDate.getDay() !== 6) {
+                daysToAdd--;
+            }
+        }
+
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const day = dayNames[deliveryDate.getDay()];
+        const month = deliveryDate.getMonth() + 1;
+        const date = deliveryDate.getDate();
+
+        // Determine delivery time based on service
+        let deliveryTime = '11:00 PM';
+        if (rate.service?.toLowerCase().includes('express') || rate.service?.toLowerCase().includes('next day')) {
+            deliveryTime = '10:30 AM';
+        } else if (rate.service?.toLowerCase().includes('2 day') || rate.service?.toLowerCase().includes('2nd day')) {
+            deliveryTime = '3:00 PM';
+        } else if (rate.service?.toLowerCase().includes('3 day')) {
+            deliveryTime = '11:00 PM';
+        } else if (rate.service?.toLowerCase().includes('ground')) {
+            deliveryTime = '11:00 PM';
+        } else {
+            deliveryTime = '6:00 PM';
+        }
+
+        return `${day} ${month}/${date} by ${deliveryTime}`;
+    };
+
+    // Get carrier logo and colors
+    const getCarrierBranding = (carrier: string) => {
+        const upperCarrier = carrier.toUpperCase();
+        switch (upperCarrier) {
             case 'UPS':
-                return { bg: 'bg-yellow-100', text: 'text-yellow-800', badge: 'bg-red-100 text-red-700' };
+                return {
+                    logo: '🚛',
+                    bgColor: 'bg-yellow-50',
+                    accentColor: 'bg-yellow-600',
+                    textColor: 'text-yellow-900',
+                    badgeColor: 'bg-yellow-600',
+                    logoUrl: '/logos.tsx/ups.png' // You'll need to add actual logos.tsx
+                };
             case 'USPS':
-                return { bg: 'bg-blue-100', text: 'text-blue-800', badge: 'bg-blue-100 text-blue-700' };
+                return {
+                    logo: '📮',
+                    bgColor: 'bg-blue-50',
+                    accentColor: 'bg-blue-600',
+                    textColor: 'text-blue-900',
+                    badgeColor: 'bg-blue-600',
+                    logoUrl: '/logos.tsx/usps.png'
+                };
             case 'FEDEX':
-                return { bg: 'bg-purple-100', text: 'text-purple-800', badge: 'bg-purple-100 text-purple-700' };
-            case 'ONTRAC':
-                return { bg: 'bg-green-100', text: 'text-green-800', badge: 'bg-green-100 text-green-700' };
+                return {
+                    logo: '✈️',
+                    bgColor: 'bg-purple-50',
+                    accentColor: 'bg-purple-600',
+                    textColor: 'text-purple-900',
+                    badgeColor: 'bg-purple-600',
+                    logoUrl: '/logos.tsx/fedex.png'
+                };
             default:
-                return { bg: 'bg-gray-100', text: 'text-gray-800', badge: 'bg-gray-100 text-gray-700' };
+                return {
+                    logo: '📦',
+                    bgColor: 'bg-gray-50',
+                    accentColor: 'bg-gray-600',
+                    textColor: 'text-gray-900',
+                    badgeColor: 'bg-gray-600',
+                    logoUrl: ''
+                };
         }
     };
 
-    const colors = getCarrierColor(carrierName);
+    const branding = getCarrierBranding(carrierName);
+    const deliveryDate = getDeliveryDate();
+
+    // Determine carrier liability amount based on service
+    const getCarrierLiability = () => {
+        const service = rate.service?.toLowerCase() || '';
+        if (service.includes('express') || service.includes('priority')) {
+            return '$100';
+        } else if (service.includes('ground advantage')) {
+            return '$100';
+        } else if (carrierName.toUpperCase() === 'UPS') {
+            return '$100';
+        } else {
+            return '$20';
+        }
+    };
+
+    // Get service tagline
+    const getServiceTagline = () => {
+        const service = rate.service?.toLowerCase() || '';
+        if (carrierName.toUpperCase() === 'USPS' && service.includes('ground advantage')) {
+            return 'Zone 1, BELOW Commercial Pricing';
+        } else {
+            return 'Instant Access, Deep Discounts';
+        }
+    };
 
     return (
-        <div className={`border-2 border-gray-200 rounded-lg p-6 ${colors.bg} hover:shadow-lg transition-shadow`}>
-            {/* Header */}
-            <div className="flex items-start justify-between mb-4">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className={`font-bold text-lg ${colors.text}`}>{carrierName}</span>
-                        {rate.service && rate.service.toLowerCase().includes('express') && (
-                            <span className={`text-xs font-semibold px-2 py-1 rounded ${colors.badge}`}>
-                FAST
-              </span>
-                        )}
+        <div className="border-2 border-gray-200 rounded-lg bg-white hover:shadow-xl transition-all duration-200 overflow-hidden">
+            {/* Header Section */}
+            <div className="p-5 pb-3">
+                <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                        {/* Carrier Logo */}
+                        <div className={`w-10 h-10 rounded flex items-center justify-center ${branding.bgColor}`}>
+                            <span className="text-xl">{branding.logo}</span>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-bold text-lg text-gray-900">
+                                    {carrierName === 'USPS' && rate.service === 'Ground Advantage'
+                                        ? 'Ground Advantage'
+                                        : `${carrierName}® ${rate.service || ''}`}
+                                </h3>
+                                {isCheapest && (
+                                    <span className="bg-black text-white text-xs font-bold px-2 py-1 rounded">
+                                        CHEAPEST
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">{getServiceTagline()}</p>
+                        </div>
                     </div>
-                    <p className="text-gray-700 text-sm font-semibold">{rate.service}</p>
+                </div>
+
+                {/* Estimated Delivery */}
+                <div className="mb-3">
+                    <p className="text-sm font-semibold text-gray-900">
+                        Estimated delivery {deliveryDate} if shipped today
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Free Tracking • <span className="text-blue-500 font-semibold">{getCarrierLiability()} carrier liability</span>
+                    </p>
                 </div>
             </div>
 
-            {/* Delivery Info */}
-            <div className="mb-4 pb-4 border-b-2 border-gray-300">
-                {rate.delivery_days && (
-                    <p className="text-sm text-gray-900 font-semibold">
-                        Estimated delivery in {rate.delivery_days} business days
-                    </p>
-                )}
-                <p className="text-xs text-gray-600 mt-1">Free Tracking, $100 carrier liability</p>
+            {/* Savings Section */}
+            <div className="bg-green-100 px-5 py-4">
+                <div className="flex justify-between items-end">
+                    <div>
+                        <p className="text-green-700 font-bold text-2xl">Save {savingsPercent}%</p>
+                        <p className="text-gray-600 text-sm line-through mt-1">${retailRate.toFixed(2)} retail</p>
+                    </div>
+                    <div>
+                        <p className="text-4xl font-bold text-gray-900">${currentRate.toFixed(2)}</p>
+                    </div>
+                </div>
             </div>
 
-            {/* Savings Info */}
-            {savings > 0 && (
-                <div className="bg-green-100 border-2 border-green-300 p-3 rounded mb-4">
-                    <p className="text-green-700 font-bold text-sm">
-                        Save {savingsPercent}%
-                    </p>
-                    <p className="text-green-600 text-xs line-through">
-                        ${retailRate.toFixed(2)} retail
-                    </p>
-                </div>
-            )}
-
-            {/* Discount Info */}
-            {discountEnabled && discountNum > 0 && (
-                <div className="bg-blue-100 border-2 border-blue-300 p-3 rounded mb-4">
-                    <p className="text-blue-700 font-bold text-sm">
-                        Additional Discount: {discountType === 'percentage' ? `${discountValue}%` : `${discountNum.toFixed(2)}`}
-                    </p>
-                    <p className="text-blue-600 text-xs">
-                        Original: ${baseRate.toFixed(2)} → Discounted: ${currentRate.toFixed(2)}
-                    </p>
-                </div>
-            )}
-
-            {/* Price */}
-            <div className="mb-4">
-                <p className="text-4xl font-bold text-gray-900">${currentRate.toFixed(2)}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 items-center">
-                <button className="flex-1 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors cursor-pointer">
-                    Ship now
+            {/* Action Section */}
+            <div className="p-5 pt-4 flex items-center justify-between">
+                <button className="text-blue-500 text-sm font-semibold hover:underline">
+                    Learn more & view rates
                 </button>
-                <button className="text-blue-600 text-sm font-bold hover:underline cursor-pointer">
-                    Learn more
+                <button className="bg-blue-500 text-white font-bold px-6 py-2.5 rounded-md hover:bg-blue-600 transition-colors">
+                    Ship now
                 </button>
             </div>
         </div>
