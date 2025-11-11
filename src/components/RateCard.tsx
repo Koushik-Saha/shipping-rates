@@ -2,6 +2,7 @@
 
 import { Rate } from '@/types';
 import { Truck, Clock, Shield, Tag } from 'lucide-react';
+import {useRouter} from "next/navigation";
 
 interface RateCardProps {
     rate: Rate;
@@ -29,6 +30,21 @@ export function RateCard({
     let currentRate = baseRate;
     let discountApplied = 0;
     const discountNum = discountValue ? parseFloat(discountValue) : 0;
+
+    const router = useRouter();
+
+    const handleShipNow = () => {
+        // Navigate to create label page with selected rate info
+        const params = new URLSearchParams({
+            shipmentId: rate.id,
+            rateId: rate.id,
+            carrier: carrierName,
+            service: rate.service || '',
+            price: currentRate.toFixed(2)
+        });
+
+        router.push(`/ship/create?${params.toString()}`);
+    };
 
     if (discountEnabled && !isNaN(discountNum) && discountNum > 0) {
         if (discountType === 'percentage') {
@@ -207,7 +223,7 @@ export function RateCard({
                 <button className="text-blue-500 text-sm font-semibold hover:underline">
                     Learn more & view rates
                 </button>
-                <button className="bg-blue-500 text-white font-bold px-6 py-2.5 rounded-md hover:bg-blue-600 transition-colors">
+                <button onClick={handleShipNow} className="bg-blue-500 text-white font-bold px-6 py-2.5 rounded-md hover:bg-blue-600 transition-colors">
                     Ship now
                 </button>
             </div>
